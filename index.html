@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interactive Analog Clock</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="app">
+
+    <header class="app-header">
+      <div class="brand">
+        <span class="brand-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6">
+            <circle cx="12" cy="12" r="9"></circle>
+            <path d="M12 7v5l3 2"></path>
+          </svg>
+        </span>
+        <div class="brand-text">
+          <span class="eyebrow">Computer Graphics Lab</span>
+          <h1>Interactive Analog Clock</h1>
+        </div>
+      </div>
+      <div class="badges">
+        <span class="badge badge-dot">Assignment 01</span>
+        <span class="badge badge-solid">MUH2101020M</span>
+      </div>
+    </header>
+
+    <main class="app-main">
+
+      <section class="info-panel">
+        <!-- <p class="eyebrow">Canvas Transformations / 2D Primitives</p> -->
+        <!-- <h2 class="headline">A living study<br>in time and<br>motion.</h2> -->
+        <p class="lede">
+          Every number below is read live from the same render loop driving
+          the clock — this panel is the math behind the motion.
+        </p>
+
+        <div class="divider"></div>
+
+        <div class="eyebrow section-label">Live Transform Values</div>
+        <div class="math-grid">
+          <div class="math-item">
+            <span class="math-label">Hour ∠</span>
+            <span class="math-value" id="mathHourAngle">0.0°</span>
+          </div>
+          <div class="math-item">
+            <span class="math-label">Minute ∠</span>
+            <span class="math-value" id="mathMinAngle">0.0°</span>
+          </div>
+          <div class="math-item">
+            <span class="math-label">Second ∠</span>
+            <span class="math-value" id="mathSecAngle">0.0°</span>
+          </div>
+          <div class="math-item">
+            <span class="math-label">Scale</span>
+            <span class="math-value" id="mathScale">100%</span>
+          </div>
+          <div class="math-item">
+            <span class="math-label">Offset X</span>
+            <span class="math-value" id="mathOffsetX">0px</span>
+          </div>
+          <div class="math-item">
+            <span class="math-label">Offset Y</span>
+            <span class="math-value" id="mathOffsetY">0px</span>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="eyebrow section-label">Angle Diagram</div>
+        <div class="diagram-wrap">
+          <canvas id="angleDiagram" width="150" height="150"></canvas>
+          <ul class="diagram-key">
+            <li><span class="key-dot key-dot-hour"></span>Hour</li>
+            <li><span class="key-dot key-dot-min"></span>Minute</li>
+            <li><span class="key-dot key-dot-sec"></span>Second</li>
+          </ul>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="eyebrow section-label">Rubric Concepts</div>
+        <ul class="concept-list">
+          <li class="concept-item">
+            <span class="concept-dot concept-dot-static"></span>
+            <div class="concept-text">
+              <span class="concept-title">Primitives</span>
+              <code class="concept-code">arc() &middot; lineTo() &middot; fillText()</code>
+            </div>
+          </li>
+          <li class="concept-item">
+            <span class="concept-dot concept-dot-pulse"></span>
+            <div class="concept-text">
+              <span class="concept-title">Rotation</span>
+              <code class="concept-code">ctx.rotate() per hand, every frame</code>
+            </div>
+          </li>
+          <li class="concept-item">
+            <span class="concept-dot" id="dotTranslation"></span>
+            <div class="concept-text">
+              <span class="concept-title">Translation</span>
+              <code class="concept-code">ctx.translate(offsetX, offsetY)</code>
+            </div>
+          </li>
+          <li class="concept-item">
+            <span class="concept-dot" id="dotScaling"></span>
+            <div class="concept-text">
+              <span class="concept-title">Scaling</span>
+              <code class="concept-code">ctx.scale(scale, scale)</code>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <section class="canvas-panel">
+        <div class="canvas-panel-topbar">
+          <span class="live-dot" aria-hidden="true"></span>
+          <span>Live Local Time</span>
+        </div>
+
+        <div class="canvas-wrap">
+          <canvas id="clockCanvas"></canvas>
+        </div>
+
+        <div class="canvas-panel-footer">
+          <span><svg class="icon-inline" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 12h8M8 12l3-3M8 12l3 3"></path></svg> Drag anywhere to translate</span>
+          <span class="dot-sep">&middot;</span>
+          <span><svg class="icon-inline" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"></path></svg> Scroll to zoom</span>
+        </div>
+      </section>
+
+      <aside class="control-panel">
+
+        <div class="stat-block">
+          <span class="eyebrow">Current Local Time</span>
+          <div class="stat-time" id="digitalReadout">--:--:-- --</div>
+          <span class="stat-date" id="dateReadout">&nbsp;</span>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="stat-row">
+          <span class="eyebrow">Viewport</span>
+          <span class="stat-value" id="viewportValue">100%</span>
+        </div>
+        <div class="stat-row stat-row-tight">
+          <span class="eyebrow">Scale</span>
+          <span class="stat-value-muted" id="scaleRangeValue">50 &ndash; 250</span>
+        </div>
+        <input type="range" id="zoomSlider" min="0.5" max="2.5" step="0.01" value="1" aria-label="Zoom">
+
+        <button id="resetBtn" class="btn btn-outline">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12a9 9 0 1 1 3 6.7"></path><path d="M3 12V6M3 12h6"></path></svg>
+          Reset view
+        </button>
+
+        <div class="divider"></div>
+
+        <div class="eyebrow section-label">Display</div>
+
+        <div class="toggle-row">
+          <div class="toggle-text">
+            <span class="toggle-title">24-hour format</span>
+            <span class="toggle-sub">Digital time readout</span>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="formatToggle">
+            <span class="switch-track"><span class="switch-thumb"></span></span>
+          </label>
+        </div>
+
+        <div class="toggle-row">
+          <div class="toggle-text">
+            <span class="toggle-title">Smooth seconds</span>
+            <span class="toggle-sub">Continuous second hand</span>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="smoothToggle" checked>
+            <span class="switch-track"><span class="switch-thumb"></span></span>
+          </label>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="eyebrow section-label">Canvas Theme</div>
+        <div class="theme-row">
+          <button class="btn btn-theme is-active" id="themeMidnight" data-theme-choice="dark">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"></path></svg>
+            Midnight
+          </button>
+          <button class="btn btn-theme" id="themePaper" data-theme-choice="light">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+            Paper
+          </button>
+        </div>
+
+      </aside>
+
+    </main>
+
+    <footer class="legend">
+      <div class="legend-item">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 12h8M8 12l3-3M8 12l3 3"></path></svg>
+        <span><strong>Translation</strong> &mdash; drag to reposition the drawing origin</span>
+      </div>
+      <div class="legend-item">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg>
+        <span><strong>Scaling</strong> &mdash; uniform geometry transform, not CSS</span>
+      </div>
+      <div class="legend-item">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+        <span><strong>Rotation</strong> &mdash; each hand rotates around the center</span>
+      </div>
+    </footer>
+
+  </div>
+
+  <script src="clock.js"></script>
+</body>
+</html>

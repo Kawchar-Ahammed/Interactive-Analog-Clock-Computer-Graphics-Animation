@@ -1,7 +1,10 @@
 # Interactive Analog Clock
 
-A live analog clock built entirely from HTML5 Canvas 2D primitives (arcs, lines, text) —
-no clock image is used anywhere. Built for the Computer Graphics Lab, Assignment 1 (25 marks).
+An interactive analog clock developed using HTML, CSS, and JavaScript as part of a Computer Graphics and Animation assignment.
+
+The project displays a real-time clock with animated hour, minute, and second hands. It includes a visually appealing interface, responsive styling, and interactive features designed to demonstrate fundamental web graphics and animation concepts.
+
+A live analog clock built entirely from HTML5 Canvas 2D primitives (arcs, lines, text) — no clock image is used anywhere.
 
 ## 1. Project Purpose
 
